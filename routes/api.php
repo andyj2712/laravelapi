@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ComisionController;
 use App\Http\Controllers\Api\ReporteController;
 use App\Models\Empleado;
 use App\Models\Productos;
+use App\Models\Comisiones;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,9 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Comisiones ---
     // GET /api/comisiones
     Route::get('/comisiones', [ComisionController::class, 'index']);
-    // GET /api/comisiones/detalle/{empleado}
-    Route::get('/comisiones/detalle/{empleado}', [ComisionController::class, 'showDetalle']);
-
+    // GET /api/comisiones/detalle/{id}
+    Route::get('/comisiones/detalle/{id}', [ComisionController::class, 'showDetalle']);
+    
+    
     // --- Reportes ---
     // POST /api/reportes/generar
     Route::post('/reportes/generar', [ReporteController::class, 'generarReporte']);
