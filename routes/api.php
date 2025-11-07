@@ -124,4 +124,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // GET /api/productos/{id}
     Route::get('/productos/{id_producto}', [ProductoController::class, 'show']);
 
+
+    // RUTAS DE REPO
 });
