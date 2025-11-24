@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\EmpleadoController;
 use App\Http\Controllers\Api\VentaController;
 use App\Http\Controllers\Api\ComisionController;
 use App\Http\Controllers\Api\ReporteController;
+use App\Http\Controllers\Api\MaterialPesadoReportController;
 use App\Models\Empleado;
 use App\Models\Productos;
 use App\Models\Comisiones;
@@ -100,7 +101,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/productos/{id_producto}', [ProductoController::class, 'destroy']);
         // POST /api/productos/{id}/actualizar-stock
         Route::post('/productos/{id_producto}/actualizar-stock', [ProductoController::class, 'updateStock']);
-
+        // --- Reportes de Material Pesado ---
+        Route::post('/material-pesado-report', [MaterialPesadoReportController::class, 'store']);
         // --- CRUD de Empleados ---
         // GET /api/empleados (Lo ponemos aquí para que solo admin los vea)
         Route::get('/empleados', [EmpleadoController::class, 'index']);
