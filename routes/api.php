@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MaterialPesadoReportController;
 use App\Models\Empleado;
 use App\Models\Productos;
 use App\Models\Comisiones;
+use App\Http\Controllers\Api\AsistenciaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +118,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // DELETE /api/ventas/{venta} (Solo admin puede borrar ventas)
         Route::delete('/ventas/{venta}', [VentaController::class, 'destroy']);
+    
+    
+        Route::get('/asistencias', [AsistenciaController::class, 'index']);
+        Route::post('/asistencias', [AsistenciaController::class, 'store']);
     });
 
     // --- RUTAS PÚBLICAS (PERO AUTENTICADAS) ---

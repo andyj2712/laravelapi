@@ -24,4 +24,9 @@ class Empleado extends Model
     {
         return $this->hasMany(Venta::class, 'empleado_id', 'id_empleado');
     }
+
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class, 'empleado_id', 'id_empleado');
+    }
 }
