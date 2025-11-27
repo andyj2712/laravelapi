@@ -38,85 +38,114 @@ class VentaController extends Controller
 
     public function store(Request $request)
     {
+        // 1. Validaciones
         $request->validate([
             'nombre_cliente' => 'required|string|max:100',
             'empleado_id' => 'required|exists:empleados,id_empleado',
-            'monto_total' => 'required|numeric|min:0',
-            'descuento' => 'nullable|numeric|min:0',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|exists:productos,id_producto',
             'productos.*.cantidad' => 'required|numeric|min:0.01',
-            'productos.*.precio_unitario' => 'required|numeric|min:0.01'
+            'productos.*.precio_unitario' => 'required|numeric|min:0',
+            'productos.*.descuento' => 'nullable|numeric|min:0', // Descuento Unitario
         ]);
 
+        // 2. Variables para acumular los totales reales calculados en el servidor
+        $calculoMontoTotal = 0;      // Suma de lo que pagará el cliente
+        $calculoDescuentoTotal = 0;  // Suma de todos los descuentos aplicados
         $totalComisionGenerada = 0;
+        $detallesVenta = [];
+
+        // 3. Pre-cargamos productos para no hacer mil consultas
         $productosEnVenta = $request->productos;
         $productoIds = collect($productosEnVenta)->pluck('id_producto')->toArray();
-
-        $productosBD = Productos::select('id_producto', 'valor_comision', 'stock_disponible', 'nombre_producto')
+        
+        $productosBD = Productos::select('id_producto', 'nombre_producto', 'stock_disponible', 'valor_comision')
                                 ->whereIn('id_producto', $productoIds)
                                 ->get()
                                 ->keyBy('id_producto');
 
-        $detallesVenta = [];
-
-        // Usamos una transacción por si algo falla (ej. stock)
+        // 4. Inicia la Transacción (Todo o Nada)
         DB::beginTransaction();
         try {
             foreach ($productosEnVenta as $item) {
                 $producto = $productosBD->get($item['id_producto']);
+                
+                // Si el producto no existe (raro por la validación, pero por seguridad)
+                if (!$producto) continue;
 
-                if (!$producto) continue; // No debería pasar
+                $cantidad = floatval($item['cantidad']);
+                $precioUnitario = floatval($item['precio_unitario']);
 
-                $cantidadVendida = $item['cantidad'];
-
-                if ($producto->stock_disponible < $cantidadVendida) {
-                    // Si no hay stock, cancelamos todo
+                // A. Validar Stock
+                if ($producto->stock_disponible < $cantidad) {
                     DB::rollBack();
                     return response()->json([
-                        'message' => 'Stock insuficiente para el producto: ' . $producto->nombre_producto
-                    ], 409); // 409 = Conflicto
+                        'message' => 'Stock insuficiente para: ' . $producto->nombre_producto . 
+                                     '. Disponible: ' . $producto->stock_disponible
+                    ], 409);
                 }
 
-                $comisionPorItem = $producto->valor_comision * $cantidadVendida;
-                $totalComisionGenerada += $comisionPorItem;
+                // B. Lógica de Descuento (UNITARIO x CANTIDAD)
+                // El frontend manda el descuento por unidad (ej: $5)
+                $descuentoUnitario = isset($item['descuento']) ? floatval($item['descuento']) : 0;
 
+                // Seguridad: No descontar más de lo que vale el producto
+                if ($descuentoUnitario > $precioUnitario) {
+                    $descuentoUnitario = $precioUnitario;
+                }
+
+                // El descuento real para la BD es el unitario por la cantidad de items
+                $descuentoTotalLinea = $descuentoUnitario * $cantidad;
+
+                // C. Calcular Subtotales
+                $subtotalBruto = $cantidad * $precioUnitario;
+                $subtotalNeto = $subtotalBruto - $descuentoTotalLinea;
+
+                // D. Acumular a los totales generales de la Venta
+                $calculoMontoTotal += $subtotalNeto;
+                $calculoDescuentoTotal += $descuentoTotalLinea;
+
+                // E. Calcular Comisión
+                $comisionLinea = $producto->valor_comision * $cantidad;
+                $totalComisionGenerada += $comisionLinea;
+
+                // F. Preparar datos para la tabla intermedia (detalles_venta)
                 $detallesVenta[$item['id_producto']] = [
-                    'cantidad' => $cantidadVendida,
-                    'precio_unitario' => $item['precio_unitario'],
-                    'comision_item' => $comisionPorItem,
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => $precioUnitario,
+                    'descuento' => $descuentoTotalLinea, // Guardamos el monto total descontado en esta línea
+                    'comision_item' => $comisionLinea,
                 ];
 
-                // Descontar Stock
-                $producto->stock_disponible -= $cantidadVendida;
+                // G. Descontar del Inventario
+                $producto->stock_disponible -= $cantidad;
                 $producto->save();
             }
 
+            // 5. Crear la Venta Principal
             $venta = Venta::create([
                 'empleado_id' => $request->empleado_id,
                 'nombre_cliente' => $request->nombre_cliente,
                 'fecha_venta' => now(),
-                'monto_total' => $request->monto_total,
-                'descuento' => $request->descuento ?? 0,
+                'monto_total' => $calculoMontoTotal,
+                'descuento' => $calculoDescuentoTotal,
                 'comision_total' => $totalComisionGenerada,
             ]);
 
+            // 6. Guardar los Detalles
             $venta->productos()->sync($detallesVenta);
 
-            // Si todo salió bien, confirmamos
+            // 7. Confirmar cambios
             DB::commit();
 
-            // Cargamos relaciones para devolverla completa
-            $venta->load('empleado', 'productos'); 
-
+            // 8. Respuesta
             return (new VentaResource($venta))->response()->setStatusCode(201);
 
         } catch (\Exception $e) {
-            // Si algo falló, revertimos
             DB::rollBack();
             return response()->json([
-                'message' => 'Error al registrar la venta: ' . $e->getMessage()
-            ], 500); // 500 = Error de servidor
+                'message' => 'Error al procesar la venta: ' . $e->getMessage()
+            ], 500);
         }
     }
 

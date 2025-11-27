@@ -16,6 +16,7 @@ class DetalleVenta extends Model
         'producto_id',
         'cantidad',
         'precio_unitario',
+        'descuento',
         'comision_item',
     ];
 

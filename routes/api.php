@@ -13,6 +13,7 @@ use App\Models\Empleado;
 use App\Models\Productos;
 use App\Models\Comisiones;
 use App\Http\Controllers\Api\AsistenciaController;
+use App\Http\Controllers\PDFController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,6 +123,9 @@ Route::middleware('auth:sanctum')->group(function () {
     
         Route::get('/asistencias', [AsistenciaController::class, 'index']);
         Route::post('/asistencias', [AsistenciaController::class, 'store']);
+
+        // ruta de pdf
+        Route::get('/ventas/{id}/pdf', [PDFController::class, 'generarFactura']);
     });
 
     // --- RUTAS PÚBLICAS (PERO AUTENTICADAS) ---
