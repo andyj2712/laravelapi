@@ -12,6 +12,7 @@ use App\Models\Empleado;
 use App\Models\Productos;
 use App\Models\Comisiones;
 use App\Http\Controllers\Api\AsistenciaController;
+use App\Http\Controllers\Api\CuadreController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Dashboard ---
     // GET /api/dashboard
     Route::get('/dashboard', [VentaController::class, 'dashboard']);
+
+
+    Route::get('cuadre/consultar', [CuadreController::class, 'consultar']);
+Route::post('cuadre/exportar', [CuadreController::class, 'exportar']);
 
     // --- Comisiones ---
     // GET /api/comisiones
