@@ -13,6 +13,7 @@ use App\Models\Productos;
 use App\Models\Comisiones;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\CuadreController;
+use App\Http\Controllers\PDFController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +93,9 @@ Route::post('cuadre/exportar', [CuadreController::class, 'exportar']);
     Route::post('/ventas', [VentaController::class, 'store']);
     // GET /api/ventas/{venta}
     Route::get('/ventas/{venta}', [VentaController::class, 'show']);
+
+    Route::get('/ventas/{id}/pdf', [PDFController::class, 'generarFactura']);
+
 
 
     // --- RUTAS SOLO PARA ADMINISTRADORES ---
