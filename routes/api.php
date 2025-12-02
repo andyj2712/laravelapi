@@ -14,6 +14,7 @@ use App\Models\Comisiones;
 use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\CuadreController;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\Api\CitaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,13 +43,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('cuadre/consultar', [CuadreController::class, 'consultar']);
-Route::post('cuadre/exportar', [CuadreController::class, 'exportar']);
+    Route::post('cuadre/exportar', [CuadreController::class, 'exportar']);
 
     // --- Comisiones ---
     // GET /api/comisiones
     Route::get('/comisiones', [ComisionController::class, 'index']);
     // GET /api/comisiones/detalle/{id}
     Route::get('/comisiones/detalle/{id}', [ComisionController::class, 'showDetalle']);
+
+
+    // --- Citas ---
+
+    Route::get('/citas', [CitaController::class, 'index']);
+    Route::post('/citas', [CitaController::class, 'store']);
+    Route::put('/citas/{id}', [CitaController::class, 'update']);
+    Route::delete('/citas/{id}', [CitaController::class, 'destroy']);
     
     
     // --- Reportes ---
