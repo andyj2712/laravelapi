@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\AsistenciaController;
 use App\Http\Controllers\Api\CuadreController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\Api\CitaController;
+use App\Http\Controllers\Api\EntregaSemanalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,8 +59,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/citas', [CitaController::class, 'store']);
     Route::put('/citas/{id}', [CitaController::class, 'update']);
     Route::delete('/citas/{id}', [CitaController::class, 'destroy']);
-    
-    
+
+
     // --- Reportes ---
     // POST /api/reportes/generar
     Route::post('/reportes/generar', [ReporteController::class, 'generarReporte']);
@@ -74,25 +75,25 @@ Route::middleware('auth:sanctum')->group(function () {
         // Obtenemos solo empleados activos (puedes cambiar esta lógica)
         $empleados = Empleado::where('status', 'activo') // Asumiendo que tienes un 'status'
                              ->get(['id_empleado', 'nombre_empleado']);
-        
+
         // Obtenemos solo productos con stock
         $productos = Productos::where('stock_disponible', '>', 0)
                                ->get(['id_producto', 'nombre_producto', 'precio_venta', 'valor_comision', 'stock_disponible']);
-        
+
         return response()->json([
             'empleados' => $empleados,
             'productos' => $productos
         ]);
     });
     Route::get('/ventas/create-resources', function () {
-        
+
         // Obtenemos solo empleados (puedes filtrar por 'activos' si tienes esa columna)
         $empleados = Empleado::get(['id_empleado', 'nombre_empleado']);
-        
+
         // Obtenemos solo productos con stock
         $productos = Productos::where('stock_disponible', '>', 0)
                                ->get(['id_producto', 'nombre_producto', 'precio_venta', 'valor_comision', 'stock_disponible']);
-        
+
         return response()->json([
             'empleados' => $empleados,
             'productos' => $productos
@@ -134,10 +135,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // DELETE /api/ventas/{venta} (Solo admin puede borrar ventas)
         Route::delete('/ventas/{venta}', [VentaController::class, 'destroy']);
-    
-    
+
+
         Route::get('/asistencias', [AsistenciaController::class, 'index']);
         Route::post('/asistencias', [AsistenciaController::class, 'store']);
+
+        // rutas de ventas semanales 
+        Route::get('/entregas-semanales', [EntregaSemanalController::class, 'index']);
+        Route::post('/entregas-semanales', [EntregaSemanalController::class, 'store']);
+        Route::delete('/entregas-semanales/{id}', [EntregaSemanalController::class, 'destroy']);
     });
 
     // --- RUTAS PÚBLICAS (PERO AUTENTICADAS) ---
