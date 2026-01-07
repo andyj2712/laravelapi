@@ -12,24 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('entregas_semanales', function (Blueprint $table) {
-        $table->id('id_entrega');
-        $table->date('fecha');
+            $table->id('id_entrega'); //
+            $table->date('fecha'); //
 
-        // Aquí guardaremos la "foto" del camión (Serie, Placa, Capacidad)
-        // Ejemplo: {"serie": "C-87-825", "capacidad": "6,180 kg", "tipo": "interno"}
-        $table->json('camion_info');
+            // Información del transporte y materiales
+            $table->json('camion_info'); //
+            $table->json('detalle_materiales'); //
 
-        // Aquí guardaremos la lista de materiales calculados
-        // Ejemplo: [{"material": "Hierro", "precio": 0.10, "libras": 1000, "subtotal": 100}]
-        $table->json('detalle_materiales');
+            // Totales monetarios
+            $table->decimal('subtotal', 10, 2); //
+            $table->decimal('iva', 10, 2); //
+            
+            // CORRECCIÓN: Se define la columna sin el método ->after()
+            $table->decimal('retencion', 10, 2)->default(0); //
+            
+            $table->decimal('total_final', 10, 2); //
 
-        // Totales monetarios
-        $table->decimal('subtotal', 10, 2);
-        $table->decimal('iva', 10, 2); // El 13% o lo que aplique
-        $table->decimal('total_final', 10, 2);
-
-        $table->timestamps();
-    });
+            $table->timestamps(); //
+        });
     }
 
     /**
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('entregas_semanales');
+        Schema::dropIfExists('entregas_semanales'); //
     }
 };

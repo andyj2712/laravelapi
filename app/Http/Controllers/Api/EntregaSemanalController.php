@@ -37,6 +37,7 @@ class EntregaSemanalController extends Controller
             'subtotal' => 'required|numeric',
             'iva' => 'required|numeric',
             'total_final' => 'required|numeric',
+            'retencion' => 'required|numeric|min:0',
         ]);
 
         $entrega = EntregaSemanal::create($request->all());

@@ -18,6 +18,7 @@ class EntregaSemanal extends Model
         'detalle_materiales',
         'subtotal',
         'iva',
+        'retencion',
         'total_final',
     ];
 
