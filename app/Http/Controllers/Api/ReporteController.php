@@ -31,20 +31,20 @@ class ReporteController extends Controller
             ])
             // Get the SUM of 'cantidad'
             ->withSum('detalleVentas as total_productos', 'cantidad');
-        
+
         if ($mes) {
             $query->whereMonth('ventas.fecha_venta', $mes);
         }
         $query->whereYear('ventas.fecha_venta', $anio);
 
         $ventas = $query->get();
-        
+
         // Flatten employee name for Vue
         $ventas->each(function ($venta) {
             $venta->nombre_empleado = $venta->empleado ? $venta->empleado->nombre_empleado : 'N/A';
             // We don't add product names here
         });
-        
+
         return response()->json(['ventas' => $ventas]);
     }
 
@@ -67,13 +67,11 @@ class ReporteController extends Controller
                 'empleado' => function ($query) {
                     $query->select('id_empleado', 'nombre_empleado');
                 },
-                // ALSO load the related product names
                 'productos'
             ])
-            // Get the SUM of 'cantidad'
             ->withSum('detalleVentas as total_productos', 'cantidad');
-        
-         if ($mes) {
+
+        if ($mes) {
             $query->whereMonth('ventas.fecha_venta', $mes);
         }
         $query->whereYear('ventas.fecha_venta', $anio);
@@ -89,23 +87,24 @@ class ReporteController extends Controller
 
         $callback = function() use ($datos) {
             $file = fopen('php://output', 'w');
-            
-            // Add BOM for UTF-8 (accents)
-            fputs($file, "\xEF\xBB\xBF"); 
-            
-            // Add 'Productos' column to header
-            fputcsv($file, ['Fecha', 'Cliente', 'Empleado', 'Total Productos', 'Productos', 'Monto Total'], ';');
+
+            // BOM para que Excel reconozca tildes y ñ (CORRECTO, DÉJALO ASÍ)
+            fputs($file, "\xEF\xBB\xBF");
+
+            // --- CORRECCIÓN AQUÍ ---
+            // Eliminamos el tercer parámetro ';'. Por defecto usará ','
+            fputcsv($file, ['Fecha', 'Cliente', 'Empleado', 'Total Productos', 'Productos', 'Monto Total']);
 
             foreach ($datos as $venta) {
                 fputcsv($file, [
                     $venta->fecha_venta,
                     $venta->nombre_cliente,
                     $venta->empleado ? $venta->empleado->nombre_empleado : 'N/A',
-                    $venta->total_productos, 
-                    // Add the comma-separated list of product names
+                    $venta->total_productos,
+                    // Nota: fputcsv manejará automáticamente las comas dentro de este string poniéndole comillas
                     $venta->productos->pluck('nombre_producto')->implode(', '),
                     $venta->monto_total
-                ], ';'); // Use semicolon
+                ]); // <--- AQUÍ TAMBIÉN QUITAMOS EL ';'
             }
             fclose($file);
         };

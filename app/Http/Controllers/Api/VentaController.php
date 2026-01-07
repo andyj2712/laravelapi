@@ -11,29 +11,46 @@ use Illuminate\Support\Facades\DB;
 
 class VentaController extends Controller
 {
-    public function index()
+   public function index(Request $request) // <--- 1. Agrega "Request $request" aquí
 {
-    // 1. Obtenemos las ventas paginadas
-    $ventasPaginadas = Venta::with(['empleado', 'productos'])
-        ->orderBy('fecha_venta', 'desc')
-        ->paginate(15);
+    // 2. Inicia la consulta ("query") pero NO la ejecutes todavía
+    $query = Venta::with(['empleado', 'productos']);
 
-    // 2. Calculamos las estadísticas (¡ESTA ES LA PARTE QUE FALTABA!)
-    // Nota: Hacemos esto en una consulta separada para no afectar la paginación.
+    // ---------------------------------------------------------
+    // 3. AQUÍ ESTÁ LO QUE FALTABA: LA LÓGICA DE FILTRADO
+    // ---------------------------------------------------------
+
+    // Filtro por Fecha (Buscador nuevo)
+    if ($request->filled('fecha')) {
+        $query->whereDate('fecha_venta', $request->fecha);
+    }
+
+    // Filtro por Cliente (Buscador de texto)
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where('nombre_cliente', 'like', "%{$search}%");
+    }
+    // ---------------------------------------------------------
+
+    // 4. Ahora sí, ordenamos y paginamos la consulta filtrada
+    $ventasPaginadas = $query->orderBy('fecha_venta', 'desc')
+                             ->paginate(15);
+
+    // 5. Estadísticas (Esto lo tenías bien, lo dejo igual)
     $queryStats = Venta::query();
-    
+
     $stats = [
         'totalVentas' => $queryStats->count(),
         'ingresosTotales' => $queryStats->sum('monto_total'),
         'totalDescuentos' => $queryStats->sum('descuento'),
         'ventasMes' => $queryStats->whereMonth('fecha_venta', now()->month)
-                                 ->whereYear('fecha_venta', now()->year)
-                                 ->count(),
+                                  ->whereYear('fecha_venta', now()->year)
+                                  ->count(),
     ];
 
-    // 3. Devolvemos la colección de recursos Y añadimos los stats
+    // 6. Retorno
     return VentaResource::collection($ventasPaginadas)
-        ->additional(['stats' => $stats]); // <-- Aquí adjuntamos los stats
+        ->additional(['stats' => $stats]);
 }
 
     public function store(Request $request)
@@ -107,7 +124,7 @@ class VentaController extends Controller
             DB::commit();
 
             // Cargamos relaciones para devolverla completa
-            $venta->load('empleado', 'productos'); 
+            $venta->load('empleado', 'productos');
 
             return (new VentaResource($venta))->response()->setStatusCode(201);
 
