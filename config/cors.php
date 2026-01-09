@@ -12,7 +12,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:8080')],
+    'allowed_origins' => [env('FRONTEND_URL', 'https://proyectorf-vue.vercel.app/')],
 
     'allowed_origins_patterns' => [],
 
