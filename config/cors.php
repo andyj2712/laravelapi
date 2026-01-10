@@ -12,7 +12,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'https://produccion-rf-production.up.railway.app/')],
+    'allowed_origins' => [env('FRONTEND_URL', 'https://produccion-rf-production.up.railway.app/', 'http://localhost:8080')],
 
     'allowed_origins_patterns' => [],
 
