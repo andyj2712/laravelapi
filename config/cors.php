@@ -12,7 +12,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('FRONTEND_URL', 'https://produccion-rf-production.up.railway.app/', 'http://localhost:8080')],
+    /*
+     * AQUÍ ESTÁ LA MAGIA:
+     * Agregamos tu localhost a la lista de permitidos explícitamente.
+     */
+    'allowed_origins' => [
+        'https://produccion-rf-production.up.railway.app',
+        'http://localhost:8080',
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -22,6 +29,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true, // ¡MUY IMPORTANTE PARA SANCTUM!
+    'supports_credentials' => true,
 
 ];
