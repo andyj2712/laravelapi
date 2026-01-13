@@ -50,21 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reportes/generar', [ReporteController::class, 'generarReporte']);
     Route::post('/reportes/exportar', [ReporteController::class, 'exportarExcel']);
 
-    // --- Ventas (Lectura) ---
-    Route::get('/ventas', [VentaController::class, 'index']); // Historial para todos
-    Route::get('/ventas/{venta}', [VentaController::class, 'show']); // Ver detalle
-    // MOVIDO AQUÍ: El contador necesita poder descargar el PDF
-    Route::get('/ventas/{id}/pdf', [PDFController::class, 'generarFactura']);
-
-    // --- Entregas / Salidas (Lectura) ---
-    // MOVIDO AQUÍ: El contador necesita ver el historial de salidas
-    Route::get('/entregas-semanales', [EntregaSemanalController::class, 'index']);
-
-    // --- Productos (Lectura) ---
-    Route::get('/productos', [ProductoController::class, 'index']);
-    Route::get('/productos/{id_producto}', [ProductoController::class, 'show']);
-
     // --- Recursos para formularios (Selects, etc) ---
+    // ¡IMPORTANTE! Esta ruta va ANTES de las rutas de ventas con ID para evitar el error 404
     Route::get('/ventas/create-resources', function () {
         $empleados = Empleado::get(['id_empleado', 'nombre_empleado']);
         $productos = Productos::where('stock_disponible', '>', 0)
@@ -74,6 +61,18 @@ Route::middleware('auth:sanctum')->group(function () {
             'productos' => $productos
         ]);
     });
+
+    // --- Ventas (Lectura) ---
+    Route::get('/ventas', [VentaController::class, 'index']); // Historial para todos
+    Route::get('/ventas/{venta}', [VentaController::class, 'show']); // Ver detalle
+    Route::get('/ventas/{id}/pdf', [PDFController::class, 'generarFactura']);
+
+    // --- Entregas / Salidas (Lectura) ---
+    Route::get('/entregas-semanales', [EntregaSemanalController::class, 'index']);
+
+    // --- Productos (Lectura) ---
+    Route::get('/productos', [ProductoController::class, 'index']);
+    Route::get('/productos/{id_producto}', [ProductoController::class, 'show']);
 
 
     // =================================================================
@@ -88,10 +87,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/productos/{id_producto}/actualizar-stock', [ProductoController::class, 'updateStock']);
 
         // --- Gestión de Empleados ---
-        Route::get('/empleados', [EmpleadoController::class, 'index']); // Lista completa (si es sensible, dejar aquí)
+        Route::get('/empleados', [EmpleadoController::class, 'index']); // Lista completa
         Route::post('/empleados', [EmpleadoController::class, 'store']);
         Route::get('/empleados/{id_empleado}', [EmpleadoController::class, 'show']);
-        Route::post('/empleados/{id_empleado}', [EmpleadoController::class, 'update']);
+        Route::post('/empleados/{id_empleado}', [EmpleadoController::class, 'update']); // POST para update con files
         Route::delete('/empleados/{id_empleado}', [EmpleadoController::class, 'destroy']);
 
         // --- Gestión de Ventas (Crear/Borrar) ---
