@@ -11,11 +11,12 @@ class PDFController extends Controller
     public function generarFactura($id)
     {
         
-        $venta = Venta::with(['detalleVentas.producto', 'empleado'])->findOrFail($id);
+        $venta = Venta::with(['productos', 'empleado'])->findOrFail($id);
         
         $data = [
             'venta' => $venta
         ];
+
 
         $pdf = Pdf::loadView('pdf.factura', $data);
 
