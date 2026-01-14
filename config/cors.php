@@ -15,6 +15,7 @@ return [
     'allowed_origins' => [
         'https://produccion-rf-production.up.railway.app',
         'http://localhost:8080',
+        'https://prueba-font-recicladora.vercel.app',
     ],
 
     'allowed_origins_patterns' => [],
