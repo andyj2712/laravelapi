@@ -1,24 +1,30 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
-    | Cross-Origin Resource Sharing (CORS) Configuration
+    | API Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     */
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['*'], 
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
 
-    'allowed_origins' => ['*'], 
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => [
+        'https://produccion-rf-production.up.railway.app',
+        'http://localhost:8080',
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'], 
+    'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
     'max_age' => 0,
 
-    'supports_credentials' => false, 
+    'supports_credentials' => true,
+
 ];
