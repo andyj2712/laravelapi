@@ -10,16 +10,16 @@ class PDFController extends Controller
 {
     public function generarFactura($id)
     {
-        
-        $venta = Venta::with(['productos', 'empleado'])->findOrFail($id);
+        $venta = Venta::with(['detalleVentas.producto', 'empleado'])->findOrFail($id);
         
         $data = [
             'venta' => $venta
         ];
 
-
         $pdf = Pdf::loadView('pdf.factura', $data);
+        
+        $pdf->setPaper('letter', 'portrait');
 
-        return $pdf->download('factura-venta-'.$venta->id_venta.'.pdf');
+        return $pdf->stream('factura-venta-'.$venta->id_venta.'.pdf');
     }
 }
