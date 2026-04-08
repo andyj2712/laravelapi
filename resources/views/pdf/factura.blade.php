@@ -89,8 +89,9 @@
 
     <div class="header">
         <h1>RECICLADORA FERNÁNDEZ</h1>
-        <p>Dirección de la Recicladora, El Salvador</p>
-        <p>Teléfono: 2222-0000 | Email: info@recicladora.com</p>
+        <p>Quezaltepeque Milagro de la Roca Canton Primavera - Carretera a Desvio de Opico 31 fic</p>
+        <p>Teléfono: 7258-8543 | Email:
+fernandezrecicladora@gmail.com</p>
     </div>
 
     <div class="info-seccion">
