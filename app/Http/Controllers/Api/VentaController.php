@@ -182,7 +182,7 @@ class VentaController extends Controller
     }
 
     // Tu lógica de Dashboard
-    public function dashboard()
+    public function dashboard() 
     {
         $totalMes = Venta::whereMonth('fecha_venta', now()->month)
                             ->whereYear('fecha_venta', now()->year)
