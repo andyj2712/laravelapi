@@ -12,13 +12,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    /*
-     * AQUÍ ESTÁ LA MAGIA:
-     * Agregamos tu localhost a la lista de permitidos explícitamente.
-     */
     'allowed_origins' => [
-        'https://produccion-rf-production.up.railway.app',
-        'http://localhost:8080',
+        'https://produccion-rf-production.up.railway.app', 
+        'http://localhost:8080', 
+        'https://prueba-font-recicladora.vercel.app', 
+        'https://reciclafer-sistemadecontrol.vercel.app', 
     ],
 
     'allowed_origins_patterns' => [],
