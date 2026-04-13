@@ -143,13 +143,42 @@ class VentaController extends Controller
         return new VentaResource($venta);
     }
 
-    public function destroy(Venta $venta)
+    public function destroy($id_venta)
     {
-        // Lógica para devolver stock (opcional)
-        // ...
+        // Usamos una transacción para asegurar que si algo falla, no se altere el stock a medias
+        DB::beginTransaction();
+        try {
+            // Buscamos la venta con sus productos asociados
+            $venta = Venta::with('productos')->findOrFail($id_venta);
 
-        $venta->delete();
-        return response()->json(null, 204);
+            // 1. Recorremos los productos de esta venta para restaurar el stock
+            foreach ($venta->productos as $producto) {
+                // Accedemos a la cantidad vendida a través de la tabla pivote (detalles_venta)
+                $cantidadVendida = $producto->pivot->cantidad;
+
+                // Buscamos el producto en la base de datos y le sumamos el stock
+                $productoBd = Productos::find($producto->id_producto);
+                if ($productoBd) {
+                    $productoBd->stock_disponible += $cantidadVendida;
+                    $productoBd->save();
+                }
+            }
+
+            // 2. Eliminamos la venta (los detalles_venta se borran solos por el cascade de la BD)
+            $venta->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Venta eliminada y stock restaurado correctamente.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Error al eliminar la venta: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // Tu lógica de Dashboard
