@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\CuadreController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\Api\CitaController;
 use App\Http\Controllers\Api\EntregaSemanalController;
+use App\Http\Controllers\Api\MaterialPesadoReportController;
+use App\Http\Controllers\Api\MaterialPrecioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +51,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- Reportes (Lectura/Generación) ---
     Route::post('/reportes/generar', [ReporteController::class, 'generarReporte']);
     Route::post('/reportes/exportar', [ReporteController::class, 'exportarExcel']);
+
+    // Reportes (ya existía, solo confirma que esté igual)
+    Route::post('/material-pesado-report', [MaterialPesadoReportController::class, 'store']);
+    Route::get('/material-pesado-report', [MaterialPesadoReportController::class, 'index']);
+    Route::get('/material-pesado-report/{id}', [MaterialPesadoReportController::class, 'show']);
+
+    // NUEVO: precios vigentes (para el engranaje)
+    Route::get('/material-precios', [MaterialPrecioController::class, 'show']);
+    Route::put('/material-precios', [MaterialPrecioController::class, 'update']);
 
     // --- Recursos para formularios (Selects, etc) ---
     // ¡IMPORTANTE! Esta ruta va ANTES de las rutas de ventas con ID para evitar el error 404
