@@ -15,8 +15,7 @@ return [
     'allowed_origins' => [
         'https://produccion-rf-production.up.railway.app', 
         'http://localhost:8080', 
-        'https://administracion-rf2026.vercel.app', 
-        'https://reciclafer-sistemadecontrol.vercel.app', 
+        'https://administracion-rf2026.vercel.app',  
     ],
 
     'allowed_origins_patterns' => [],
